@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nuestros planes · el azar elige</title>
+
+<!--
+  ┌──────────────────────────────────────────────────────────────┐
+  │  TUS FOTOS:                                                   │
+  │  Pega abajo las URLs (o rutas) de sus fotos entre comillas.   │
+  │  Puedes dejar 2, 3 o 4. Si dejas el texto vacío, se muestra   │
+  │  un marco con un mensajito hasta que pongas la foto.          │
+  └──────────────────────────────────────────────────────────────┘
+-->
+<script>
+  const FOTOS = [
+    { src: "", pie: "tú y yo" },
+    { src: "", pie: "nosotros" },
+    { src: "", pie: "siempre" }
+  ];
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --noche:#241526;
+    --noche-2:#3a1d39;
+    --crepusculo:#7a3550;
+    --brasa:#c46a55;
+    --oro:#e7b15f;
+    --rosa:#edb1ac;
+    --crema:#f6ece1;
+    --tinta:#34202f;
+    --suave:rgba(246,236,225,.62);
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html,body{ min-height:100%; }
+
+  body{
+    font-family:'Jost', system-ui, sans-serif;
+    color:var(--crema);
+    background:
+      radial-gradient(120% 90% at 50% 112%, rgba(231,177,95,.30) 0%, rgba(196,106,85,.16) 26%, rgba(0,0,0,0) 55%),
+      radial-gradient(140% 120% at 50% 120%, var(--crepusculo) 0%, var(--noche-2) 46%, var(--noche) 78%);
+    background-attachment:fixed;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:clamp(22px,5vw,52px) 20px 60px;
+    overflow-x:hidden;
+  }
+
+  /* destellos lejanos del cielo */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      radial-gradient(1.4px 1.4px at 18% 24%, rgba(246,236,225,.7), transparent),
+      radial-gradient(1.2px 1.2px at 72% 16%, rgba(246,236,225,.55), transparent),
+      radial-gradient(1px 1px at 42% 9%, rgba(246,236,225,.5), transparent),
+      radial-gradient(1.3px 1.3px at 88% 38%, rgba(246,236,225,.5), transparent),
+      radial-gradient(1px 1px at 9% 46%, rgba(246,236,225,.45), transparent);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .lienzo{ position:relative; z-index:1; width:100%; max-width:660px; display:flex; flex-direction:column; align-items:center; }
+
+  /* ─── encabezado ─── */
+  header{ text-align:center; margin-bottom:clamp(20px,4vw,30px); }
+  .ojal{
+    font-size:.72rem; letter-spacing:.42em; text-transform:uppercase;
+    color:var(--oro); font-weight:400; margin-bottom:.5rem; padding-left:.42em;
+  }
+  h1{
+    font-family:'Cormorant Garamond', Georgia, serif;
+    font-weight:300; line-height:1.02;
+    font-size:clamp(2.5rem,9vw,4rem);
+    letter-spacing:.01em;
+  }
+  h1 em{ font-style:italic; color:var(--rosa); }
+  .sub{ margin-top:.7rem; color:var(--suave); font-weight:300; font-size:.96rem; }
+
+  /* ─── fotos polaroid ─── */
+  .galeria{
+    display:flex; justify-content:center; align-items:flex-end;
+    gap:clamp(-6px,-1.6vw,4px);
+    margin:6px 0 26px;
+    min-height:120px;
+  }
+  .polaroid{
+    background:var(--crema);
+    padding:8px 8px 26px;
+    border-radius:3px;
+    box-shadow:0 14px 30px rgba(0,0,0,.4), 0 2px 6px rgba(0,0,0,.3);
+    width:clamp(96px,27vw,130px);
+  }
+  .polaroid:nth-child(1){ transform:rotate(-7deg) translateY(8px); }
+  .polaroid:nth-child(2){ transform:rotate(2deg) translateY(-6px); z-index:2; }
+  .polaroid:nth-child(3){ transform:rotate(8deg) translateY(10px); }
+  .marco{
+    aspect-ratio:1/1; border-radius:2px; overflow:hidden;
+    background:
+      repeating-linear-gradient(45deg, rgba(122,53,80,.10) 0 9px, rgba(122,53,80,.05) 9px 18px),
+      linear-gradient(135deg, #e9d8d2, #d9c2bd);
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+  }
+  .marco img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .marco span{ font-size:.66rem; color:#8a5d66; padding:6px; line-height:1.35; }
+  .pie{
+    font-family:'Cormorant Garamond', serif; font-style:italic;
+    color:var(--tinta); text-align:center; font-size:1rem; margin-top:7px;
+  }
+
+  /* ─── carta del plan ─── */
+  .carta{
+    position:relative; width:100%;
+    background:linear-gradient(160deg, #fbf3ea, #f3e2d8);
+    color:var(--tinta);
+    border-radius:22px;
+    padding:clamp(30px,7vw,46px) clamp(24px,6vw,40px);
+    box-shadow:0 26px 60px rgba(20,8,20,.5), inset 0 0 0 1px rgba(255,255,255,.5);
+    text-align:center;
+    overflow:hidden;
+    transition:transform .55s cubic-bezier(.2,.8,.2,1), box-shadow .55s;
+  }
+  .carta::after{
+    content:""; position:absolute; inset:9px; border-radius:15px;
+    border:1px solid rgba(122,53,80,.22); pointer-events:none;
+  }
+  .carta.brilla{ box-shadow:0 30px 70px rgba(20,8,20,.55), 0 0 0 2px var(--oro), 0 0 46px rgba(231,177,95,.4); }
+
+  .numero{
+    font-family:'Jost',sans-serif; font-weight:400; letter-spacing:.3em;
+    font-size:.74rem; text-transform:uppercase; color:var(--crepusculo);
+    margin-bottom:.4rem; padding-left:.3em;
+  }
+  .emoji{ font-size:clamp(2.6rem,11vw,3.4rem); line-height:1; display:block; margin:.2rem 0 .5rem; }
+  .plan{
+    font-family:'Cormorant Garamond', Georgia, serif;
+    font-weight:400; line-height:1.08;
+    font-size:clamp(1.9rem,7vw,2.9rem);
+    min-height:2.1em;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .carta.girando .plan{ opacity:.85; }
+  .carta.girando .emoji{ filter:saturate(.7); }
+
+  /* chispas */
+  .chispa{ position:absolute; pointer-events:none; font-size:1.1rem; opacity:0; }
+
+  /* ─── botón ─── */
+  .boton{
+    margin-top:26px;
+    font-family:'Jost',sans-serif; font-weight:400;
+    font-size:1.02rem; letter-spacing:.04em;
+    color:var(--tinta);
+    background:linear-gradient(135deg, var(--oro), #f0c887);
+    border:none; border-radius:999px;
+    padding:15px 38px; cursor:pointer;
+    box-shadow:0 10px 26px rgba(231,177,95,.34);
+    transition:transform .25s, box-shadow .25s, opacity .25s, filter .25s;
+  }
+  .boton:hover{ transform:translateY(-2px); box-shadow:0 16px 34px rgba(231,177,95,.46); }
+  .boton:active{ transform:translateY(0) scale(.98); }
+  .boton:disabled{ filter:grayscale(.3) brightness(.95); cursor:default; transform:none; }
+  .boton:focus-visible{ outline:3px solid var(--rosa); outline-offset:3px; }
+
+  /* ─── pie / controles ─── */
+  .controles{
+    margin-top:22px; display:flex; flex-wrap:wrap;
+    align-items:center; justify-content:center; gap:14px 22px;
+    color:var(--suave); font-size:.86rem; font-weight:300;
+  }
+  .contador{ letter-spacing:.02em; }
+  .contador b{ color:var(--oro); font-weight:500; }
+  .switch{ display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none; }
+  .switch input{ position:absolute; opacity:0; width:0; height:0; }
+  .pista{
+    width:38px; height:21px; border-radius:999px;
+    background:rgba(246,236,225,.18); position:relative; transition:background .25s;
+    flex:0 0 auto;
+  }
+  .pista::after{
+    content:""; position:absolute; top:2.5px; left:2.5px;
+    width:16px; height:16px; border-radius:50%; background:var(--crema);
+    transition:transform .25s;
+  }
+  .switch input:checked + .pista{ background:var(--crepusculo); }
+  .switch input:checked + .pista::after{ transform:translateX(17px); background:var(--rosa); }
+  .switch input:focus-visible + .pista{ outline:2px solid var(--rosa); outline-offset:3px; }
+
+  .reset{
+    background:none; border:1px solid rgba(246,236,225,.28);
+    color:var(--suave); font-family:'Jost',sans-serif; font-weight:300;
+    font-size:.82rem; border-radius:999px; padding:7px 16px; cursor:pointer;
+    transition:border-color .25s, color .25s;
+  }
+  .reset:hover{ color:var(--crema); border-color:var(--rosa); }
+  .reset:focus-visible{ outline:2px solid var(--rosa); outline-offset:2px; }
+
+  .firma{
+    margin-top:30px; color:var(--suave); font-size:.82rem; font-weight:300;
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-size:1rem;
+    text-align:center;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+  }
+</style>
+</head>
+<body>
+  <main class="lienzo">
+    <header>
+      <p class="ojal">73 planes para vivir juntos</p>
+      <h1>Que el azar <em>nos elija</em></h1>
+      <p class="sub">Toca el botón y deja que la suerte decida qué haremos hoy.</p>
+    </header>
+
+    <section class="galeria" id="galeria" aria-label="Nuestras fotos"></section>
+
+    <section class="carta" id="carta" aria-live="polite">
+      <p class="numero" id="numero">listos</p>
+      <span class="emoji" id="emoji">💞</span>
+      <div class="plan" id="plan">Nuestra lista de planes</div>
+    </section>
+
+    <button class="boton" id="boton">Elegir nuestro plan</button>
+
+    <div class="controles">
+      <span class="contador" id="contador"><b>73</b> planes por vivir</span>
+      <label class="switch">
+        <input type="checkbox" id="sinRepetir" checked>
+        <span class="pista"></span>
+        <span>No repetir hasta agotarlos</span>
+      </label>
+      <button class="reset" id="reset">Reiniciar lista</button>
+    </div>
+
+    <p class="firma">hecho para ti y para mí ✶</p>
+  </main>
+
+<script>
+  const PLANES = [
+    {n:1,e:"🌸",t:"Ir a un cultivo de flores"},
+    {n:2,e:"🍝",t:"Aprender a cocinar pasta desde cero"},
+    {n:3,e:"🍜",t:"Aprender a cocinar ramen desde cero"},
+    {n:4,e:"🍕",t:"Aprender a hacer pizza desde cero"},
+    {n:5,e:"🎳",t:"Jugar bolos"},
+    {n:6,e:"🏎️",t:"Manejar karts"},
+    {n:7,e:"🐴",t:"Montar a caballo"},
+    {n:8,e:"🏘️",t:"Ir a Villa de Leyva"},
+    {n:9,e:"⛪",t:"Ir al Santuario de Las Lajas"},
+    {n:10,e:"🌴",t:"Ir a Villavicencio"},
+    {n:11,e:"🥾",t:"Caminar 5 km en la naturaleza"},
+    {n:12,e:"🧺",t:"Hacer un picnic"},
+    {n:13,e:"🎨",t:"Intercambio de colores"},
+    {n:14,e:"🪂",t:"Volar en parapente"},
+    {n:15,e:"🪗",t:"Ir a Valledupar"},
+    {n:16,e:"🐢",t:"Ir a las Galápagos"},
+    {n:17,e:"🍰",t:"Hacer un postre juntos"},
+    {n:18,e:"🖼️",t:"Pintar un lienzo"},
+    {n:19,e:"💃",t:"Ir a una clase de baile"},
+    {n:20,e:"🐓",t:"Ir a una granja"},
+    {n:21,e:"🚴",t:"Montar bici"},
+    {n:22,e:"💌",t:"Escribirnos una carta"},
+    {n:23,e:"📖",t:"Lectura en voz alta"},
+    {n:24,e:"⚽",t:"Ir a un partido de fútbol"},
+    {n:25,e:"🛋️",t:"Ver una peli arrunchados"},
+    {n:26,e:"😴",t:"Hacer pereza"},
+    {n:27,e:"🍽️",t:"Conocer un nuevo restaurante"},
+    {n:28,e:"🎞️",t:"Ir a la cinemateca"},
+    {n:29,e:"🪐",t:"Ir al planetario"},
+    {n:30,e:"🏛️",t:"Ir a un museo"},
+    {n:31,e:"🧴",t:"Hacer skincare"},
+    {n:32,e:"💆",t:"Ir al spa"},
+    {n:33,e:"⛳",t:"Jugar golf"},
+    {n:34,e:"🎭",t:"Ir a teatro"},
+    {n:35,e:"🍿",t:"Ir a cine"},
+    {n:36,e:"💅",t:"Ir al salón de belleza"},
+    {n:37,e:"🖍️",t:"Colorear"},
+    {n:38,e:"🥅",t:"Jugar fútbol"},
+    {n:39,e:"🏀",t:"Jugar basket"},
+    {n:40,e:"🔫",t:"Jugar paintball"},
+    {n:41,e:"🔓",t:"Hacer un escape room"},
+    {n:42,e:"🤸",t:"Ir a los saltarines"},
+    {n:43,e:"⛺",t:"Hacer glamping"},
+    {n:44,e:"🎢",t:"Ir a Jaime Duque"},
+    {n:45,e:"💇",t:"Aprender a hacer trenzas"},
+    {n:46,e:"🧂",t:"Ir a la mina de Nemocón"},
+    {n:47,e:"🚂",t:"Montar en tren"},
+    {n:48,e:"🏔️",t:"Hacer trekking"},
+    {n:49,e:"🛏️",t:"Hacer una pijamada"},
+    {n:50,e:"⚡",t:"Jugar cartas de Pokémon en unlimited"},
+    {n:51,e:"🐉",t:"Jugar Yu-Gi-Oh"},
+    {n:52,e:"🦑",t:"Probar un plato extraño en un restaurante"},
+    {n:53,e:"👕",t:"Vestirnos igual"},
+    {n:54,e:"🧀",t:"Hacer nachos"},
+    {n:55,e:"🎱",t:"Jugar billar"},
+    {n:56,e:"💥",t:"Jugar tejo"},
+    {n:57,e:"🍹",t:"Preparar un cóctel"},
+    {n:58,e:"🍷",t:"Catar vinos"},
+    {n:59,e:"☕",t:"Catar cafés"},
+    {n:60,e:"🦋",t:"Ir al mariposario"},
+    {n:61,e:"🪩",t:"Ir a una discoteca"},
+    {n:62,e:"🐾",t:"Ir a una fundación de animales rescatados"},
+    {n:63,e:"🎤",t:"Cantar karaoke"},
+    {n:64,e:"📺",t:"Ver una serie juntos"},
+    {n:65,e:"🎲",t:"Jugar juegos de mesa"},
+    {n:66,e:"🌅",t:"Observar un amanecer juntos"},
+    {n:67,e:"🌃",t:"Observar un anochecer juntos"},
+    {n:68,e:"🌇",t:"Observar un atardecer juntos"},
+    {n:69,e:"🍳",t:"Preparar un almuerzo en casa"},
+    {n:70,e:"🎣",t:"Ir a pescar"},
+    {n:71,e:"🌳",t:"Conocer un nuevo parque"},
+    {n:73,e:"🧖",t:"Hacer mascarillas en el cabello"},
+    {n:74,e:"🏡",t:"Ir donde Leidy"}
+  ];
+
+  const $numero = document.getElementById('numero');
+  const $emoji  = document.getElementById('emoji');
+  const $plan   = document.getElementById('plan');
+  const $carta  = document.getElementById('carta');
+  const $boton  = document.getElementById('boton');
+  const $contador = document.getElementById('contador');
+  const $sinRepetir = document.getElementById('sinRepetir');
+  const $reset = document.getElementById('reset');
+  const reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let vividos = new Set();
+
+  // ── fotos ──
+  (function pintarFotos(){
+    const cont = document.getElementById('galeria');
+    FOTOS.forEach(f=>{
+      const card = document.createElement('figure');
+      card.className = 'polaroid';
+      const marco = document.createElement('div');
+      marco.className = 'marco';
+      if(f.src && f.src.trim()){
+        const img = document.createElement('img');
+        img.src = f.src; img.alt = f.pie || 'nosotros';
+        img.onerror = ()=>{ marco.innerHTML = '<span>foto no encontrada<br>revisa la URL</span>'; };
+        marco.appendChild(img);
+      } else {
+        marco.innerHTML = '<span>aquí va<br>nuestra foto ✦</span>';
+      }
+      const pie = document.createElement('figcaption');
+      pie.className = 'pie'; pie.textContent = f.pie || '';
+      card.appendChild(marco); card.appendChild(pie);
+      cont.appendChild(card);
+    });
+  })();
+
+  function disponibles(){
+    if(!$sinRepetir.checked) return PLANES;
+    return PLANES.filter(p=>!vividos.has(p.n));
+  }
+
+  function actualizarContador(){
+    const restan = $sinRepetir.checked ? (PLANES.length - vividos.size) : PLANES.length;
+    if($sinRepetir.checked){
+      $contador.innerHTML = restan>0
+        ? `<b>${restan}</b> de ${PLANES.length} por vivir`
+        : `vivimos los <b>${PLANES.length}</b> ✨`;
+    } else {
+      $contador.innerHTML = `<b>${PLANES.length}</b> planes posibles`;
+    }
+  }
+
+  function pintar(p){
+    $numero.textContent = 'plan n.º ' + p.n;
+    $emoji.textContent = p.e;
+    $plan.textContent = p.t;
+  }
+
+  function chispas(){
+    const simbolos = ['✨','🤍','💫','✶'];
+    for(let i=0;i<7;i++){
+      const s = document.createElement('span');
+      s.className = 'chispa';
+      s.textContent = simbolos[Math.floor(Math.random()*simbolos.length)];
+      s.style.left = (12 + Math.random()*76) + '%';
+      s.style.top = (20 + Math.random()*55) + '%';
+      $carta.appendChild(s);
+      const dx = (Math.random()*60 - 30);
+      s.animate([
+        { transform:'translate(0,0) scale(.4)', opacity:0 },
+        { transform:`translate(${dx}px,-26px) scale(1.1)`, opacity:1, offset:.35 },
+        { transform:`translate(${dx*1.6}px,-70px) scale(.7)`, opacity:0 }
+      ], { duration: 1100 + Math.random()*500, easing:'ease-out' })
+       .onfinish = ()=> s.remove();
+    }
+  }
+
+  function elegir(){
+    const pool = disponibles();
+    if(pool.length === 0){
+      $numero.textContent = 'lista cumplida';
+      $emoji.textContent = '🏆';
+      $plan.textContent = 'Ya soñamos los 73 planes juntos';
+      return;
+    }
+
+    const final = pool[Math.floor(Math.random()*pool.length)];
+
+    if(reducir){
+      pintar(final);
+      vividos.add(final.n);
+      actualizarContador();
+      $carta.classList.add('brilla');
+      setTimeout(()=> $carta.classList.remove('brilla'), 900);
+      return;
+    }
+
+    $boton.disabled = true;
+    $carta.classList.add('girando');
+    $carta.classList.remove('brilla');
+
+    let t = 0;
+    const total = 1650;
+    const tick = ()=>{
+      const r = PLANES[Math.floor(Math.random()*PLANES.length)];
+      pintar(r);
+      t += 60 + (t/total)*180;          // se va frenando
+      if(t < total){
+        setTimeout(tick, 60 + (t/total)*180);
+      } else {
+        pintar(final);
+        vividos.add(final.n);
+        actualizarContador();
+        $carta.classList.remove('girando');
+        $carta.classList.add('brilla');
+        $carta.animate([
+          { transform:'translateY(0) scale(1)' },
+          { transform:'translateY(-8px) scale(1.025)' },
+          { transform:'translateY(0) scale(1)' }
+        ], { duration:560, easing:'cubic-bezier(.2,.8,.2,1)' });
+        chispas();
+        $boton.disabled = false;
+        $boton.textContent = 'Elegir otro plan';
+      }
+    };
+    tick();
+  }
+
+  $boton.addEventListener('click', elegir);
+  $sinRepetir.addEventListener('change', actualizarContador);
+  $reset.addEventListener('click', ()=>{
+    vividos.clear();
+    actualizarContador();
+    $numero.textContent = 'listos';
+    $emoji.textContent = '💞';
+    $plan.textContent = 'Nuestra lista de planes';
+    $carta.classList.remove('brilla');
+    $boton.textContent = 'Elegir nuestro plan';
+  });
+
+  actualizarContador();
+</script>
+</body>
+</html>
